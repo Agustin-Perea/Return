@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6767bb85e045378468c1196fe3173d51, type: 3}
+  m_Name: Enemy
+  m_EditorClassIdentifier: Assembly-CSharp::FighterSO
+  fighterName: Enemy
+  maxHP: 50
+  attack: 10
+  magic: 10
+  defense: 1
+  animator: {fileID: 9100000, guid: b4a0443acd50436428048b7b5364ee42, type: 2}
