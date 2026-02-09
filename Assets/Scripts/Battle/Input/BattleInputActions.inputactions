@@ -136,8 +136,8 @@
                 },
                 {
                     "name": "",
-                    "id": "9d99a2a7-ce26-4858-8470-57314ad2a14b",
-                    "path": "<Mouse>/leftButton",
+                    "id": "aae730ff-68b9-4fd7-9a8e-40ee56748bd2",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -169,8 +169,8 @@
                 },
                 {
                     "name": "",
-                    "id": "149ce98f-f5bf-45d7-820b-e148011d37b4",
-                    "path": "<Mouse>/leftButton",
+                    "id": "54a087c4-8476-4245-b015-4d101aed4e36",
+                    "path": "<Keyboard>/space",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

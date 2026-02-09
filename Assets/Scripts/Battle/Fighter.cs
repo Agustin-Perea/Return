@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Fighter : MonoBehaviour
 {
+    public event Action<float> OnTakeDamage;
+
     public FighterSO data;
     public int currentHP;
 
@@ -22,35 +24,23 @@ public class Fighter : MonoBehaviour
         animator.runtimeAnimatorController = data.animator;
 
         transform.position = position;
-
-        if (isPlayer)
-        {
-            PlayIdleLeft();
-        }
-        else
-        {
-            PlayIdleRight();
-        }
-    }
-
-    public void PlayIdleLeft()
-    {
-        animator?.SetFloat("Pos X", -1);
-    }
-    public void PlayIdleRight()
-    {
-        animator?.SetFloat("Pos X", 1);
     }
 
     public void TakeDamage(int dmg)
     {
-        currentHP -= dmg;
+        currentHP = Mathf.Max(currentHP - dmg, 0);
         OnDamage();
         Debug.Log($"{data.fighterName} received {dmg} damage. Current HP: {currentHP}");
     }
     public void OnDamage()
     {
+        OnTakeDamage?.Invoke(GetHPPercent());
         animator?.SetTrigger("Damage");
+    }
+
+    public float GetHPPercent()
+    {
+        return (float)currentHP / data.maxHP;
     }
 
     public void PlayAttackPhysical()
@@ -65,7 +55,7 @@ public class Fighter : MonoBehaviour
 
     public void PlayDefend()
     {
-        throw new NotImplementedException();
+        
     }
 
     public void PlayDeath()

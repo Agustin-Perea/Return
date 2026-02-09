@@ -6,6 +6,7 @@ public class BattleInput : MonoBehaviour
 {
     public static event Action OnConfirmPressed;
     public static event Action OnBreakPressed;
+    public static event Action<int> OnNavigatePressed;
     public static BattleInput Instance { get; private set; }
 
     private BattleInputActions input;
@@ -26,8 +27,14 @@ public class BattleInput : MonoBehaviour
     {
         input.Battle.Enable();
 
+        input.Battle.Navigate.performed += Navigate_performed;
         input.Battle.Confirm.performed += OnConfirm;
         input.Battle.Break.performed += OnBreak;
+    }
+
+    private void Navigate_performed(InputAction.CallbackContext input)
+    {
+        OnNavigatePressed?.Invoke((int)input.ReadValue<Vector2>().normalized.y);
     }
 
     private void OnDisable()

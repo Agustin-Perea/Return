@@ -1,10 +1,13 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BattleManager : MonoBehaviour
 {
     public static event Action<Fighter> OnPlayerTurnStarted;
     public static event Action OnPlayerActionSelected;
+    public static event Action<int> OnPlayerNavigate;
 
     [Header("Fighter Data")]
     public FighterSO playerSO;
@@ -21,6 +24,9 @@ public class BattleManager : MonoBehaviour
 
     private BreakSystem breakSystem;
 
+    private int selectedActionIndex = 0;
+    private bool playerTurn;
+
     void Start()
     {
         player = Instantiate(fighterPrefab).GetComponent<Fighter>();
@@ -31,6 +37,9 @@ public class BattleManager : MonoBehaviour
 
         breakSystem = GetComponent<BreakSystem>();
 
+        BattleInput.OnNavigatePressed += SelectAcion;
+        BattleInput.OnConfirmPressed += HandleActionSelected;
+
         Debug.Log($"Start batlle \nPlayer HP: {player.currentHP}/{player.data.maxHP} || Enemy HP: {enemy.currentHP}/{enemy.data.maxHP} ");
 
         StartPlayerTurn();
@@ -38,14 +47,49 @@ public class BattleManager : MonoBehaviour
 
     void StartPlayerTurn()
     {
+        if (!player.IsAlive) return;
+
         Debug.Log("Player's Turn");
+        playerTurn = true;
         OnPlayerTurnStarted?.Invoke(player);
+    }
+
+    private void SelectAcion(int value)
+    {
+        if(!playerTurn) return;
+
+        selectedActionIndex = Mathf.Clamp(selectedActionIndex - value, 0, 2);
+        OnPlayerNavigate?.Invoke(selectedActionIndex);
+
+        Debug.Log($"Selected Action Index: {selectedActionIndex}");
+    }
+    
+    private void HandleActionSelected()
+    {
+        if(!playerTurn) return;
+
+        if (selectedActionIndex == 0)
+        {
+            PlayerAttackPhysical();
+        }
+        else if(selectedActionIndex == 1)
+        {
+            PlayerAttackMagic();
+        }
+        else if(selectedActionIndex == 2)
+        {
+            PlayerDefend();
+        }
+
+
+        OnPlayerActionSelected?.Invoke();
+
+        playerTurn = false;
     }
 
     public void PlayerAttackPhysical()
     {
         Debug.Log("Player chose Physical Attack");
-        OnPlayerActionSelected?.Invoke();
 
         ResolvePhysicalAttack(player, enemy);
         player.PlayAttackPhysical();
@@ -58,7 +102,6 @@ public class BattleManager : MonoBehaviour
     public void PlayerAttackMagic()
     {
         Debug.Log("Player chose Magic Attack");
-        OnPlayerActionSelected?.Invoke();
 
         ResolveMagicAttack(player, enemy);
         player.PlayAttackMagic();
@@ -71,7 +114,7 @@ public class BattleManager : MonoBehaviour
     public void PlayerDefend()
     {
         Debug.Log("Player chose Defend");
-        OnPlayerActionSelected?.Invoke();
+
 
         player.PlayDefend();
 
@@ -98,6 +141,8 @@ public class BattleManager : MonoBehaviour
 
     void StartEnemyTurn()
     {
+        if (!enemy.IsAlive) return;
+
         Debug.Log("Enemy's Turn");
         ResolvePhysicalAttack(enemy, player);
         enemy.PlayAttackPhysical();
@@ -119,10 +164,6 @@ public class BattleManager : MonoBehaviour
         target.TakeDamage(damage);
     }
 
-    float GetPlayerHPPercent()
-    {
-        return (float)player.currentHP / player.data.maxHP;
-    }
 
     void CheckBattleEnd()
     {
@@ -130,11 +171,26 @@ public class BattleManager : MonoBehaviour
         {
             player.PlayDeath();
             Debug.Log("PLAYER DEAD");
+
+            StartCoroutine(LoadScene("BattleScene"));
         }
         else if (!enemy.IsAlive)
         {
             enemy.PlayDeath();
             Debug.Log("ENEMY DEAD");
+
+            StartCoroutine(LoadScene("BattleScene"));
         }
+    }
+
+    private IEnumerator LoadScene(string sceneName)
+    {
+        yield return new WaitForSeconds(2f);
+        SceneManager.LoadScene(sceneName);
+    }
+    private void OnDisable()
+    {
+        BattleInput.OnNavigatePressed -= SelectAcion;
+        BattleInput.OnConfirmPressed -= HandleActionSelected;
     }
 }
