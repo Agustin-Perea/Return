@@ -6,46 +6,61 @@ public class ActionSelectionUI : MonoBehaviour
 {
     public GameObject ActionSelectionUIObject;
     public GameObject[] attacksSelector;
+    public GameObject[] targetSelector;
     void OnEnable()
     {
-        BattleManager.OnPlayerTurnStarted += Show;
-        BattleManager.OnPlayerActionSelected += Hide;
-        BattleManager.OnPlayerNavigate += (value) =>
-        {
-            for (int i = 0; i < attacksSelector.Length; i++)
-            {
-                if (attacksSelector[i] == null) continue;
+        BattleManager.OnPlayerTurnStarted += ShowActionSelection;
+        BattleManager.OnPlayerActionSelected += BattleManager_OnPlayerActionSelected; ;
+        BattleManager.OnAttackSelected += HideTargetSelection;
+        BattleManager.OnPlayerNavigate += SwitchActionSelector;
 
-                if (i == value)
-                {
-                    attacksSelector[i].SetActive(true);
-                }
-                else
-                {
-                    attacksSelector[i].SetActive(false);
-                }
-            }
-        };
-
-        Hide();
+        HideActionSelection();
+        HideTargetSelection();
         attacksSelector.ToList().ForEach(selector => selector.SetActive(false));
         attacksSelector[0].SetActive(true);
     }
 
-    void OnDisable()
+    private void BattleManager_OnPlayerActionSelected(int action, int target)
     {
-        BattleManager.OnPlayerTurnStarted -= Show;
-        BattleManager.OnPlayerActionSelected -= Hide;
+        HideActionSelection();
+
+        SwitchTargetSelection(action, target);
     }
 
-    private void Show(Fighter fighter)
+    void OnDisable()
+    {
+        BattleManager.OnPlayerTurnStarted -= ShowActionSelection;
+        BattleManager.OnPlayerActionSelected -= BattleManager_OnPlayerActionSelected;
+        BattleManager.OnAttackSelected -= HideTargetSelection;
+        BattleManager.OnPlayerNavigate -= SwitchActionSelector;
+    }
+
+    private void ShowActionSelection(Fighter fighter)
     {
         ActionSelectionUIObject.SetActive(true);
     }
 
-    private void Hide()
+    private void SwitchTargetSelection(int action, int target)
+    {
+        if(action < 0) return;
+
+        HideTargetSelection();
+        targetSelector[target].SetActive(true);
+    }
+
+    private void HideActionSelection()
     {
         ActionSelectionUIObject.SetActive(false);
     }
 
+    private void HideTargetSelection()
+    {
+        targetSelector.ToList().ForEach(selector => selector.SetActive(false));
+    }
+
+    private void SwitchActionSelector(int value)
+    {
+        attacksSelector.ToList().ForEach(selector => selector.SetActive(false));
+        attacksSelector[value].SetActive(true);
+    }
 }
