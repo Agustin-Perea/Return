@@ -12,6 +12,7 @@ public class BattleManager : MonoBehaviour
     public static event Action<Fighter> OnPlayerTurnStarted;
     public static event Action<int, int> OnPlayerActionSelected;
     public static event Action<int> OnPlayerNavigate;
+    public static event Action<int> OnPlayerSwitchTarget;
     public static event Action OnAttackSelected;
 
     [Header("Fighter Data")]
@@ -30,7 +31,7 @@ public class BattleManager : MonoBehaviour
     private BreakSystem breakSystem;
 
     private int selectedActionIndex = 0;
-    private int enemyTargetIndex = 0;
+    private int enemyTargetIndex = 1;
 
     private bool playerTurn;
     private bool isActionSelected;
@@ -109,6 +110,7 @@ public class BattleManager : MonoBehaviour
         else
         {
             SelectTarget(value);
+            OnPlayerSwitchTarget?.Invoke(enemyTargetIndex);
         }
     }
 
@@ -140,7 +142,7 @@ public class BattleManager : MonoBehaviour
         {
             if (enemyGroup[enemyTargetIndex] == null || !enemyGroup[enemyTargetIndex].IsAlive)
             {
-                SelectTarget(1);
+                enemyTargetIndex = enemyGroup.IndexOf(enemyGroup.FirstOrDefault(x => x != null && x.IsAlive));
             }
             OnPlayerActionSelected?.Invoke(selectedActionIndex, enemyGroup[enemyTargetIndex].PositionIndex);
             isActionSelected = true;

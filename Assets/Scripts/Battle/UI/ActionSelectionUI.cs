@@ -13,6 +13,7 @@ public class ActionSelectionUI : MonoBehaviour
         BattleManager.OnPlayerActionSelected += BattleManager_OnPlayerActionSelected; ;
         BattleManager.OnAttackSelected += HideTargetSelection;
         BattleManager.OnPlayerNavigate += SwitchActionSelector;
+        BattleManager.OnPlayerSwitchTarget += SwitchTargetSelection;
 
         HideActionSelection();
         HideTargetSelection();
@@ -24,7 +25,8 @@ public class ActionSelectionUI : MonoBehaviour
     {
         HideActionSelection();
 
-        SwitchTargetSelection(action, target);
+        if (action < 0) return;
+        SwitchTargetSelection(target);
     }
 
     void OnDisable()
@@ -40,10 +42,8 @@ public class ActionSelectionUI : MonoBehaviour
         ActionSelectionUIObject.SetActive(true);
     }
 
-    private void SwitchTargetSelection(int action, int target)
+    private void SwitchTargetSelection(int target)
     {
-        if(action < 0) return;
-
         HideTargetSelection();
         targetSelector[target].SetActive(true);
     }
