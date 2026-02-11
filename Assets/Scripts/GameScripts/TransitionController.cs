@@ -1,21 +1,22 @@
+using UnityEditorInternal;
 using UnityEngine;
 
 public class TransitionController : MonoBehaviour
 {
-    EventBinding<CameraEvent> cameraEventBinding;
+    EventBinding<TransitionCameraEvent> cameraEventBinding;
     public Animator transitionAnimator;
     void OnEnable()
     {
-        cameraEventBinding = new EventBinding<CameraEvent>(OnCameraEvent);
-        EventBus<CameraEvent>.Register(cameraEventBinding);
+        cameraEventBinding = new EventBinding<TransitionCameraEvent>(OnCameraEvent);
+        EventBus<TransitionCameraEvent>.Register(cameraEventBinding);
     }
     void OnDisable()
     {
-        EventBus<CameraEvent>.Deregister(cameraEventBinding);
+        EventBus<TransitionCameraEvent>.Deregister(cameraEventBinding);
     }
-    void OnCameraEvent(CameraEvent e)
+    void OnCameraEvent(TransitionCameraEvent e)
     {
-        Debug.Log("Received Camera Event");
-        transitionAnimator.Play("TransitionAmination",0);
+        Debug.Log("Received Transition Camera Event");
+        transitionAnimator.Play(e.animationName,0);
     }
 }
