@@ -667,10 +667,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.14168379
-    y: 0.17105263
-    width: 0.7145791
-    height: 0.65789473
+    x: 0.1506024
+    y: 0.17684887
+    width: 0.69879514
+    height: 0.6430868
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34
@@ -12083,7 +12083,7 @@ Transform:
   m_GameObject: {fileID: 2142571363}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.44318, y: -0.63507, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -12105,6 +12105,8 @@ MonoBehaviour:
   gameStateMachine: {fileID: 0}
   combatProbability: 0.05
   cooldownTime: 2
+  explorationCam: {fileID: 519420028}
+  combatCam: {fileID: 1263009521}
 --- !u!114 &2142571368
 MonoBehaviour:
   m_ObjectHideFlags: 0

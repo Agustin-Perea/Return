@@ -20,6 +20,7 @@ public class GameController : MonoBehaviour
     void Awake()
     {
         gameStateMachine = GetComponent<GameStateMachine>();
+        
 
     }
     void Start()
@@ -32,6 +33,7 @@ public class GameController : MonoBehaviour
         EventBus<AddCombatCooldown>.Register(addCombatCooldownEventBinding);
         EventBus<ActiveExplorationState>.Register(onActiveExplorationStateEventBinding);
 
+        OnactiveExplorationState();
     }
     void OnactiveExplorationState()
     {
@@ -88,12 +90,14 @@ public class GameController : MonoBehaviour
 
         yield return new WaitForSecondsRealtime(1.5f);
 
-        gameStateMachine.ChangeState(GameStateMachine.GameState.Combat);
+        
         SwitchToCombat();
     }
 
     public void SwitchToCombat()
     {
+        gameStateMachine.ChangeState(GameStateMachine.GameState.Combat);
+
         explorationCam.SetActive(false);
         combatCam.SetActive(true);
     }
