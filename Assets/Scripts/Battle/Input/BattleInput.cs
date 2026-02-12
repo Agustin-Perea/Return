@@ -39,6 +39,7 @@ public class BattleInput : MonoBehaviour
 
     private void OnDisable()
     {
+        input.Battle.Navigate.performed -= Navigate_performed;
         input.Battle.Confirm.performed -= OnConfirm;
         input.Battle.Break.performed -= OnBreak;
 

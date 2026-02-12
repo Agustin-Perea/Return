@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using NUnit.Framework;
+using System.Collections.Generic;
 public class GameController : MonoBehaviour
 {
 
@@ -15,6 +17,10 @@ public class GameController : MonoBehaviour
 
     public GameObject explorationCam;
     public GameObject combatCam;
+
+    public BattleManager battleManager;
+    public List<EnemyGroup> enemyGroups;
+    public FighterSO playerFighterSO;
 
 
     void Awake()
@@ -100,6 +106,7 @@ public class GameController : MonoBehaviour
 
         explorationCam.SetActive(false);
         combatCam.SetActive(true);
+        battleManager.StartBattle(enemyGroups[Random.Range(0, enemyGroups.Count)], playerFighterSO);
     }
 
 
