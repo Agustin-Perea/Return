@@ -3,9 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using static UnityEngine.EventSystems.EventTrigger;
-using static UnityEngine.GraphicsBuffer;
 
 public class BattleManager : MonoBehaviour
 {
@@ -15,9 +12,6 @@ public class BattleManager : MonoBehaviour
     public static event Action<int> OnPlayerSwitchTarget;
     public static event Action OnAttackSelected;
 
-    [Header("Fighter Data")]
-    public FighterSO playerSO;
-    public EnemyGroup enemyGroupSO;
 
     [Header("Spawn Points")]
     [SerializeField] private Transform playerSpawn;
@@ -39,8 +33,17 @@ public class BattleManager : MonoBehaviour
     private List<Fighter> fightersTurnOrder => new List<Fighter>() { player }.Concat(enemyGroup).ToList().OrderByDescending(x => x.speed).ToList();
     private int currentTurnIndex = -1;
 
-    void Start()
+    private void OnEnable()
     {
+        breakSystem = GetComponent<BreakSystem>();
+
+        BattleInput.OnNavigatePressed += BattleInput_OnNavigatePressed;
+        BattleInput.OnConfirmPressed += BattleInput_OnConfirmPressed;
+    }
+    public void StartBattle(EnemyGroup enemyGroupSO, FighterSO playerSO)
+    {
+        ResetBattle();
+
         player = Instantiate(fighterPrefab).GetComponent<Fighter>();
         player.Init(playerSO, playerSpawn.position, 0, true);
 
@@ -51,11 +54,6 @@ public class BattleManager : MonoBehaviour
             enemyInstance.Init(enemySO.fighter, enemySpawn[enemySO.position].position,enemySO.position, false);
             enemyGroup.Add(enemyInstance);
         }
-
-        breakSystem = GetComponent<BreakSystem>();
-
-        BattleInput.OnNavigatePressed += BattleInput_OnNavigatePressed;
-        BattleInput.OnConfirmPressed += BattleInput_OnConfirmPressed; ;
 
         Debug.Log($"Start batlle \nPlayer HP: {player.currentHP}/{player.data.maxHP}");
 
@@ -246,7 +244,7 @@ public class BattleManager : MonoBehaviour
         ResolvePhysicalAttack(enemy, player);
         enemy.PlayAttackPhysical();
 
-        CheckBattleEnd();
+        if(CheckBattleEnd()) return;
 
         StartNextTurn();
     }
@@ -264,18 +262,21 @@ public class BattleManager : MonoBehaviour
     }
 
 
-    private void CheckBattleEnd()
+    private bool CheckBattleEnd()
     {
         if (!player.IsAlive)
         {
             Debug.Log("PLAYER DEAD");
             EndBattle(false);
+            return true;
         }
         else if(enemyGroup.All(e => !e.IsAlive))
         {
             Debug.Log("ENEMY DEAD");
             EndBattle(true);
+            return true;
         }
+        return false;
     }
 
     private void EndBattle(bool playerWin)
@@ -294,4 +295,35 @@ public class BattleManager : MonoBehaviour
         BattleInput.OnNavigatePressed -= SelectAcion;
         BattleInput.OnConfirmPressed -= HandleActionSelected;
     }
+<<<<<<< Updated upstream
+=======
+
+
+    public IEnumerator ChangeToExploration()
+    {
+        EventBus<TransitionCameraEvent>.Raise(new TransitionCameraEvent { animationName = "SmoothTransition" });
+        yield return new WaitForSeconds(0.5f);
+        EventBus<ActiveExplorationState>.Raise(new ActiveExplorationState());
+    }
+    public void ResetBattle()
+    {
+        Debug.Log("Resetting Battle...");
+
+        if (player != null) Destroy(player.gameObject);
+
+        foreach (var enemy in enemyGroup)
+        {
+            if (enemy != null) Destroy(enemy.gameObject);
+        }
+
+        enemyGroup.Clear();
+        player = null;
+
+        currentTurnIndex = -1;
+        selectedActionIndex = 0;
+        enemyTargetIndex = 1; 
+        playerTurn = false;
+        isActionSelected = false;
+    }
+>>>>>>> Stashed changes
 }
