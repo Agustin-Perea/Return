@@ -47,11 +47,11 @@ public class BattleManager : MonoBehaviour
         player = Instantiate(fighterPrefab).GetComponent<Fighter>();
         player.Init(playerSO, playerSpawn.position, 0, true);
 
-        for(int i = 0; i < enemyGroupSO.enemies.Length; i++)
+        for (int i = 0; i < enemyGroupSO.enemies.Length; i++)
         {
             var enemySO = enemyGroupSO.enemies[i];
             var enemyInstance = Instantiate(fighterPrefab).GetComponent<Fighter>();
-            enemyInstance.Init(enemySO.fighter, enemySpawn[enemySO.position].position,enemySO.position, false);
+            enemyInstance.Init(enemySO.fighter, enemySpawn[enemySO.position].position, enemySO.position, false);
             enemyGroup.Add(enemyInstance);
         }
 
@@ -63,7 +63,7 @@ public class BattleManager : MonoBehaviour
     private void StartNextTurn()
     {
         currentTurnIndex++;
-        if(currentTurnIndex >= fightersTurnOrder.Count) currentTurnIndex = 0;
+        if (currentTurnIndex >= fightersTurnOrder.Count) currentTurnIndex = 0;
 
         if (fightersTurnOrder[currentTurnIndex].isPlayer)
         {
@@ -77,7 +77,7 @@ public class BattleManager : MonoBehaviour
 
     private void BattleInput_OnConfirmPressed()
     {
-        if(!playerTurn) return;
+        if (!playerTurn) return;
 
         if (!isActionSelected)
         {
@@ -99,7 +99,7 @@ public class BattleManager : MonoBehaviour
 
     private void BattleInput_OnNavigatePressed(int value)
     {
-        if(!playerTurn) return;
+        if (!playerTurn) return;
 
         if (!isActionSelected)
         {
@@ -124,17 +124,17 @@ public class BattleManager : MonoBehaviour
 
     private void SelectAcion(int value)
     {
-        if(!playerTurn) return;
+        if (!playerTurn) return;
 
         selectedActionIndex = Mathf.Clamp(selectedActionIndex - value, 0, 2);
         OnPlayerNavigate?.Invoke(selectedActionIndex);
 
         Debug.Log($"Selected Action Index: {selectedActionIndex}");
     }
-    
+
     private void HandleActionSelected()
     {
-        if(!playerTurn) return;
+        if (!playerTurn) return;
 
         if (selectedActionIndex != 2)
         {
@@ -165,7 +165,7 @@ public class BattleManager : MonoBehaviour
             {
                 break;
             }
-                
+
 
             if (enemyGroup[index] != null && enemyGroup[index].IsAlive)
             {
@@ -217,13 +217,13 @@ public class BattleManager : MonoBehaviour
     private void OpenBreakWindow()
     {
         Debug.Log("Opening Break Window");
-        breakSystem.StartBreakWindow( OnBreakSuccess, OnBreakFail);
+        breakSystem.StartBreakWindow(OnBreakSuccess, OnBreakFail);
     }
 
     private void OnBreakSuccess()
     {
         Debug.Log("Break Success! Player gets another turn.");
-        StartPlayerTurn(fightersTurnOrder.FirstOrDefault(x => x.isPlayer)); 
+        StartPlayerTurn(fightersTurnOrder.FirstOrDefault(x => x.isPlayer));
     }
 
     private void OnBreakFail()
@@ -234,11 +234,11 @@ public class BattleManager : MonoBehaviour
 
     private void StartEnemyTurn(Fighter enemy)
     {
-        if (!enemy.IsAlive) 
+        if (!enemy.IsAlive)
         {
             StartNextTurn();
             return;
-        } 
+        }
 
         Debug.Log("Enemy's Turn");
         ResolvePhysicalAttack(enemy, player);
@@ -270,7 +270,7 @@ public class BattleManager : MonoBehaviour
             EndBattle(false);
             return true;
         }
-        else if(enemyGroup.All(e => !e.IsAlive))
+        else if (enemyGroup.All(e => !e.IsAlive))
         {
             Debug.Log("ENEMY DEAD");
             EndBattle(true);
@@ -288,15 +288,15 @@ public class BattleManager : MonoBehaviour
     private IEnumerator LoadScene(string sceneName)
     {
         yield return new WaitForSeconds(2f);
-        SceneManager.LoadScene(sceneName);
+        //SceneManager.LoadScene(sceneName); para que no carge la escena
+        StartCoroutine(ChangeToExploration());
+
     }
     private void OnDisable()
     {
         BattleInput.OnNavigatePressed -= SelectAcion;
         BattleInput.OnConfirmPressed -= HandleActionSelected;
     }
-<<<<<<< Updated upstream
-=======
 
 
     public IEnumerator ChangeToExploration()
@@ -325,5 +325,4 @@ public class BattleManager : MonoBehaviour
         playerTurn = false;
         isActionSelected = false;
     }
->>>>>>> Stashed changes
 }
