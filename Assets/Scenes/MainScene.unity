@@ -179,7 +179,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BreakSystem
   breakGauge: 0
   breakThreshold: 100
-  breakWindowTime: 1
+  breakWindowTime: 0.3
   breakGain: 20
 --- !u!114 &23135962
 MonoBehaviour:
@@ -586,10 +586,10 @@ Camera:
   m_LensShift: {x: 0, y: 0}
   m_NormalizedViewPortRect:
     serializedVersion: 2
-    x: 0.07604167
-    y: 0.12962963
-    width: 0.18125
-    height: 0.18518518
+    x: 0.046875004
+    y: 0.037037037
+    width: 0.90625006
+    height: 0.9259259
   near clip plane: 0.3
   far clip plane: 1000
   field of view: 34

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using static UnityEngine.EventSystems.EventTrigger;
 
 public class BattleManager : MonoBehaviour
 {
@@ -71,7 +72,7 @@ public class BattleManager : MonoBehaviour
         }
         else
         {
-            StartEnemyTurn(fightersTurnOrder[currentTurnIndex]);
+            StartCoroutine(StartEnemyTurn(fightersTurnOrder[currentTurnIndex]));
         }
     }
 
@@ -88,9 +89,9 @@ public class BattleManager : MonoBehaviour
             Fighter target = enemyGroup[enemyTargetIndex];
 
             if (selectedActionIndex == 0)
-                PlayerAttackPhysical(target);
+                StartCoroutine(PlayerAttackPhysical(target));
             else if (selectedActionIndex == 1)
-                PlayerAttackMagic(target);
+                StartCoroutine(PlayerAttackMagic(target));
 
             OnAttackSelected?.Invoke();
             isActionSelected = false;
@@ -177,30 +178,30 @@ public class BattleManager : MonoBehaviour
         Debug.Log($"Selected Target Index: {enemyTargetIndex}");
     }
 
-    private void PlayerAttackPhysical(Fighter enemy)
+    private IEnumerator PlayerAttackPhysical(Fighter enemy)
     {
         playerTurn = false;
         Debug.Log("Player chose Physical Attack");
 
-        ResolvePhysicalAttack(player, enemy);
-        player.PlayAttackPhysical();
+        yield return player.MoveToTarget(player.transform, enemy.transform.position + Vector3.left);
 
-        CheckBattleEnd();
+        yield return ResolvePhysicalAttack(player, enemy);
 
-        OpenBreakWindow();
+        if(!CheckBattleEnd())
+            StartNextTurn();
     }
 
-    private void PlayerAttackMagic(Fighter enemy)
+    private IEnumerator PlayerAttackMagic(Fighter enemy)
     {
         playerTurn = false;
         Debug.Log("Player chose Magic Attack");
 
-        ResolveMagicAttack(player, enemy);
-        player.PlayAttackMagic();
+        yield return player.MoveToTarget(player.transform, enemy.transform.position + Vector3.left);
 
-        CheckBattleEnd();
+        yield return ResolveMagicAttack(player, enemy);
 
-        OpenBreakWindow();
+        if (!CheckBattleEnd())
+            StartNextTurn();
     }
 
     private void PlayerDefend()
@@ -210,55 +211,70 @@ public class BattleManager : MonoBehaviour
 
 
         player.PlayDefend();
-
-        OpenBreakWindow();
     }
 
-    private void OpenBreakWindow()
-    {
-        Debug.Log("Opening Break Window");
-        breakSystem.StartBreakWindow(OnBreakSuccess, OnBreakFail);
-    }
+    Coroutine moveCoroutine;
 
     private void OnBreakSuccess()
     {
         Debug.Log("Break Success! Player gets another turn.");
-        StartPlayerTurn(fightersTurnOrder.FirstOrDefault(x => x.isPlayer));
+        StopCoroutine(moveCoroutine);
+        StartCoroutine(CancelEnemyTurn(fightersTurnOrder[currentTurnIndex]));
     }
 
     private void OnBreakFail()
     {
         Debug.Log("Break Failed! Enemy's turn.");
-        StartNextTurn();
+        StartCoroutine(ContinueEnemyTurn(fightersTurnOrder[currentTurnIndex]));
     }
 
-    private void StartEnemyTurn(Fighter enemy)
+    private IEnumerator StartEnemyTurn(Fighter enemy)
     {
         if (!enemy.IsAlive)
         {
-            StartNextTurn();
-            return;
+            if (!CheckBattleEnd())
+                StartNextTurn();
+            yield break;
         }
 
+        breakSystem.OpenBreakWindow(OnBreakSuccess, OnBreakFail);
         Debug.Log("Enemy's Turn");
-        ResolvePhysicalAttack(enemy, player);
-        enemy.PlayAttackPhysical();
 
-        if(CheckBattleEnd()) return;
+        moveCoroutine = StartCoroutine(enemy.MoveToTarget(enemy.transform, player.transform.position + Vector3.right * 10, breakSystem.breakWindowTime));
+    }
 
+    private IEnumerator ContinueEnemyTurn(Fighter enemy)
+    {
+        yield return ResolvePhysicalAttack(enemy, player);
+
+        if (!CheckBattleEnd())
+            StartNextTurn();
+    }
+
+    private IEnumerator CancelEnemyTurn(Fighter enemy)
+    {
+        yield return enemy.MoveBack();
         StartNextTurn();
     }
 
-    private void ResolvePhysicalAttack(Fighter attacker, Fighter target)
+    private IEnumerator ResolvePhysicalAttack(Fighter attacker, Fighter target)
     {
+        yield return attacker.PlayAttackPhysical();
+
         int damage = Mathf.Max(1, attacker.data.attack - target.data.defense);
         target.TakeDamage(damage);
+
+        yield return attacker.MoveBack();
     }
 
-    private void ResolveMagicAttack(Fighter attacker, Fighter target)
+    private IEnumerator ResolveMagicAttack(Fighter attacker, Fighter target)
     {
+        yield return attacker.PlayAttackMagic();
+
         int damage = Mathf.Max(1, attacker.data.magic);
         target.TakeDamage(damage);
+
+        yield return attacker.MoveBack();
     }
 
 
@@ -288,7 +304,7 @@ public class BattleManager : MonoBehaviour
     private IEnumerator LoadScene(string sceneName)
     {
         yield return new WaitForSeconds(2f);
-        //SceneManager.LoadScene(sceneName); para que no carge la escena
+
         StartCoroutine(ChangeToExploration());
 
     }

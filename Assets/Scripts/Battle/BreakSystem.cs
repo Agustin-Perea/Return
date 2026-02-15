@@ -14,10 +14,12 @@ public class BreakSystem : MonoBehaviour
     private float timer = 0f;
     private bool active = false;
 
+    public bool IsActive => active;
+
     private Action onSuccess;
     private Action onFail;
 
-    public void StartBreakWindow(Action onBreakSuccess, Action onBreakFail)
+    public void OpenBreakWindow(Action onBreakSuccess, Action onBreakFail)
     {
         onSuccess = onBreakSuccess;
         onFail = onBreakFail;
